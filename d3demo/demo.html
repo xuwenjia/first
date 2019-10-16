@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>D3 study</title>
+  <meta name="format-detection" content="telephone=no,email=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+  <script src="https://cdn.bootcss.com/d3/5.12.0/d3.js"></script>
+</head>
+
+<body>
+
+</body>
+<script>
+  var div = d3.select('body') //选择文档中的body元素
+    .append('div') //添加一个div元素
+    .attr('width', 700) //设定宽度
+    .attr('height', 700) //设定高度
+    .attr('style', 'background-color:#eee;'); //设置div的背景色为灰色
+
+  function update(dataset) {
+    //选中div下所有的class为child的p标签,当此方法第一次执行时页面中没有p.child所以选中的是一个空的集合
+    var pp = div.selectAll('p.child');
+
+    // 数据是否改变需要一个判断条件, rentur d.id就将数据是否改变的条件换成了通过id来判断, 默认是下标
+    // 绑定数据给 p.child,集合中element 与 dataset通过id进行对比  如果数据改变了就会进入到ppUpdate集合中
+    var ppUpdate = pp.data(dataset, d => d.id);
+
+    // 对需要更改的element进行视图层的更新
+    ppUpdate.html((d) => {
+      // console.log(d)
+      return d.name
+    }); //update操作结束
+
+    // 集合中element 与 dataset通过id进行对比  如果数据没有了就会进入到ppUpdate集合中
+    // 删除操作开始
+    var ppexit = ppUpdate.exit();
+
+    ppexit.remove();// 对于需要移除的元素进行移除; 删除操作结束
+
+
+    // 集合中element 与 dataset通过id进行对比  如果当前数据没有绑定任何element就会进入到ppEnter集合中等待操作
+    //新增操作开始
+    var ppEnter = ppUpdate.enter();
+
+    // 对需要新增的元素通过append方法添加到视图中
+    ppEnter.append('p')
+      .attr('class', 'child') // 这一步是必须的，因为第23行选中的是class为child的p如果不给class会导致无法添加成功
+      .html((d) => {
+        // console.log(d)
+        return d.name
+      });//新增操作结束
+  }
+  var data1 = [{ id: 1, name: '老田' }, { id: 2, name: '老孙' }, { id: 3, name: '老刘' }, { id: 4, name: '老李' },]; //数据
+  var data2 = [{ id: 1, name: '老田2' }, { id: 2, name: '老孙' }, { id: 5, name: '老王' }, { id: 6, name: '老罗' }]; //数据
+
+  //首次加载
+  // 第一次执行时页面中没有p元素
+  // 所以  update和exit集合的长度都为0 没有需要修改或者删除的元素 enter长度为data1的长度4 所以会添加四个p标签
+  update(data1);
+  // 模拟异步第二次加载你会看到视图层的更新
+  setTimeout(function () {
+    // 第二次渲染时 通过id 对比 data1 和data2。 id1为更改得; id5 id6为新增的; id3 id4为删除的; id2没有修改
+    update(data2);
+  }, 2000)
+</script>
+
+</html>
